@@ -25,12 +25,10 @@ let saveTimeout: NodeJS.Timeout | null = null;
 const DEBOUNCE_DELAY = 1000;
 
 coreStore.subscribe(
-  (state: CoreState) => ({
-    intValue: state.intValue,
-  }),
-  (current: CoreState, previous: CoreState) => {
+  (state: CoreState) => state.intValue,
+  (current: number, previous: number) => {
     // Only save if intValue actually changed
-    if (previous && current.intValue !== previous.intValue) {
+    if (previous !== undefined && current !== previous) {
       if (saveTimeout) {
         clearTimeout(saveTimeout);
       }
