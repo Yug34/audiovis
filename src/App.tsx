@@ -19,7 +19,7 @@ function App() {
     <div className="flex flex-col w-screen h-screen">
       <main className="flex-1 relative">
         <div className="w-full h-full flex items-center justify-center text-2xl font-bold">
-          Hello World
+          Hello World test
         </div>
       </main>
     </div>
