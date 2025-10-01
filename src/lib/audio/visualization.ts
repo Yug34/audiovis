@@ -1,19 +1,14 @@
 import type {
   VisualizeAudioProps,
-  DrawCanvasProps,
+  DrawHaloProps,
   VisualizationType,
   CircularVisualizationParams,
 } from '@/types/audio';
+import { DEFAULT_VISUALIZATION_PARAMS } from './constants';
 
 // Global visualization parameters that can be updated in real-time
 let globalVisualizationParams: CircularVisualizationParams = {
-  stepFactor: 1.01,
-  colorStepFactor: 100,
-  opacity: 0.85,
-  radius: 2,
-  panSpeed: 0.004,
-  panRadius: 0.15,
-  rotationSpeed: 0.01,
+  ...DEFAULT_VISUALIZATION_PARAMS,
 };
 
 // Function to update global visualization parameters
@@ -102,7 +97,7 @@ export function visualizeAudio({
     requestAnimationFrame(renderVisualization);
 
     // Use circular visualization instead of the bar chart
-    drawCircularVisualization({
+    drawHalo({
       analyserRight,
       analyserLeft,
       canvas,
@@ -130,207 +125,14 @@ function createDataArray(
   return array;
 }
 
-export function drawCanvas({
-  analyserRight,
-  analyserLeft,
-  canvas,
-  fftSize,
-  padding = 20,
-  gapBetweenBars = 3,
-  wasmModule,
-}: DrawCanvasProps): void {
-  const canvasCtx: CanvasRenderingContext2D | null = canvas.getContext('2d');
-  const bufferLength = analyserRight.frequencyBinCount;
-  const [HEIGHT, WIDTH] = [canvas.height, canvas.width];
-
-  // Holding freq data for the left and right channels from the analyserNodes:
-  const dataArrayRight: Uint8Array = createDataArray(
-    analyserRight,
-    'frequency'
-  );
-  const dataArrayLeft: Uint8Array = createDataArray(analyserLeft, 'frequency');
-
-  // Time domain data - available if needed for time domain plots
-  // const timeDataArrayRight: Uint8Array = createDataArray(analyserRight, 'time');
-  // const timeDataArrayLeft: Uint8Array = createDataArray(analyserLeft, 'time');
-
-  // Use WASM to calculate bar width and averages
-  let barWidth: number;
-  let leftAverage: number;
-  let rightAverage: number;
-
-  if (wasmModule) {
-    // Calculate using Rust
-    barWidth = wasmModule.calculate_bar_width(
-      WIDTH,
-      fftSize,
-      gapBetweenBars,
-      padding,
-      bufferLength
-    );
-    leftAverage = wasmModule.calculate_average(dataArrayLeft);
-    rightAverage = wasmModule.calculate_average(dataArrayRight);
-  } else {
-    // Fallback to JavaScript calculations
-    barWidth =
-      (WIDTH - fftSize * (gapBetweenBars / 2) - padding) / bufferLength;
-    leftAverage = dataArrayLeft.reduce((a, b) => a + b) / bufferLength;
-    rightAverage = dataArrayRight.reduce((a, b) => a + b) / bufferLength;
-  }
-
-  let barHeightLeft: number;
-  let barHeightRight: number;
-  canvasCtx!.fillStyle = 'rgb(0, 0, 0)';
-  canvasCtx!.fillRect(0, 0, WIDTH, HEIGHT);
-  canvasCtx!.font = '300 16px Arial';
-
-  // padding on both (left and right) sides of the bar graph
-  let currentHorizontalPosition: number = padding / 2;
-
-  const drawFreqDomainPlot = (): void => {
-    for (let i = 0; i < bufferLength; i++) {
-      barHeightLeft = dataArrayLeft[i];
-      barHeightRight = dataArrayRight[i];
-
-      // Green bars for the Right channel
-      canvasCtx!.fillStyle = `rgb(50, ${barHeightRight + 100}, 50)`;
-      canvasCtx!.fillRect(
-        currentHorizontalPosition,
-        (HEIGHT - barHeightRight / 2) / 2 - 200,
-        barWidth,
-        barHeightRight / 4
-      );
-
-      // Blue bars for the Left channel
-      canvasCtx!.fillStyle = `rgb(50, 50, ${barHeightLeft + 100})`;
-      canvasCtx!.fillRect(
-        currentHorizontalPosition,
-        HEIGHT / 2 - 200,
-        barWidth,
-        barHeightLeft / 4
-      );
-
-      canvasCtx!.fillStyle = `rgb(255, 255, 255)`;
-      canvasCtx!.fillText('Freq. domain plot', WIDTH / 2 - 50, HEIGHT / 4 - 50);
-
-      canvasCtx!.fillText(
-        `${barHeightLeft}`,
-        currentHorizontalPosition + barWidth / 2,
-        (HEIGHT + barHeightLeft / 2) / 2 - (200 - 20)
-      );
-
-      currentHorizontalPosition += barWidth + gapBetweenBars;
-    }
-    currentHorizontalPosition = padding / 2;
-  };
-
-  // Time domain plot - available but not currently used
-  // const drawTimeDomainPlot = (): void => {
-  //   for (let i = 0; i < bufferLength; i++) {
-  //     barHeightLeft = timeDataArrayLeft[i];
-  //     barHeightRight = timeDataArrayRight[i];
-  //     canvasCtx!.fillStyle = `rgb(255, 255, 255)`;
-  //     canvasCtx!.fillText('Time domain plot', WIDTH / 2 - 50, HEIGHT / 2 + 50);
-  //     // Green bars for the Right channel
-  //     canvasCtx!.fillStyle = `rgb(50, ${barHeightRight + 100}, 50)`;
-  //     canvasCtx!.fillRect(
-  //       currentHorizontalPosition,
-  //       (HEIGHT - barHeightRight / 2) / 2 + 150,
-  //       barWidth,
-  //       2
-  //     );
-  //     // Blue bars for the Left channel
-  //     canvasCtx!.fillStyle = `rgb(50, 50, ${barHeightLeft + 100})`;
-  //     canvasCtx!.fillRect(
-  //       currentHorizontalPosition,
-  //       HEIGHT / 2 + 150 + barHeightLeft / 4,
-  //       barWidth,
-  //       2
-  //     );
-  //     currentHorizontalPosition += barWidth + gapBetweenBars;
-  //   }
-  //   currentHorizontalPosition = padding / 2;
-  // };
-
-  const drawAudioLevel = (): void => {
-    // Helper function to convert packed RGB to CSS string
-    const rgbToString = (packedRgb: number): string => {
-      const r = (packedRgb >> 16) & 0xff;
-      const g = (packedRgb >> 8) & 0xff;
-      const b = packedRgb & 0xff;
-      return `rgb(${r}, ${g}, ${b})`;
-    };
-
-    canvasCtx!.fillStyle = `rgb(255, 255, 255)`;
-    canvasCtx!.fillText('Audio Levels', WIDTH / 2 - 40, HEIGHT / 2 - 100);
-
-    canvasCtx!.fillRect(
-      WIDTH / 2 - barWidth - gapBetweenBars,
-      HEIGHT / 2,
-      2 * barWidth + gapBetweenBars,
-      3
-    );
-
-    canvasCtx!.fillText(
-      `${Math.round(leftAverage)}`,
-      WIDTH / 2 - barWidth,
-      HEIGHT / 2 - leftAverage / 2 - 20
-    );
-
-    // Use WASM for color calculations if available
-    if (wasmModule) {
-      const rightColor = wasmModule.calculate_level_color(rightAverage, true);
-      const leftColor = wasmModule.calculate_level_color(leftAverage, false);
-
-      canvasCtx!.fillStyle = rgbToString(rightColor);
-      canvasCtx!.fillRect(WIDTH / 2, HEIGHT / 2, barWidth, -rightAverage / 2);
-
-      canvasCtx!.fillStyle = rgbToString(leftColor);
-      canvasCtx!.fillRect(
-        WIDTH / 2 - (barWidth + gapBetweenBars),
-        HEIGHT / 2,
-        barWidth,
-        -leftAverage / 2
-      );
-    } else {
-      // Fallback to JavaScript
-      canvasCtx!.fillStyle = `rgb(50, ${rightAverage + 100}, 50)`;
-      canvasCtx!.fillRect(WIDTH / 2, HEIGHT / 2, barWidth, -rightAverage / 2);
-
-      canvasCtx!.fillStyle = `rgb(50, 50, ${leftAverage + 100})`;
-      canvasCtx!.fillRect(
-        WIDTH / 2 - (barWidth + gapBetweenBars),
-        HEIGHT / 2,
-        barWidth,
-        -leftAverage / 2
-      );
-    }
-  };
-
-  drawFreqDomainPlot();
-  // drawTimeDomainPlot();
-  drawAudioLevel();
-}
-
 // Circular frequency domain visualization based on the Rust implementation
-export function drawCircularVisualization({
+export function drawHalo({
   analyserRight,
   analyserLeft,
   canvas,
   frameCount = 0,
-  params = {
-    stepFactor: 1.01,
-    colorStepFactor: 100,
-    opacity: 0.85,
-    radius: 2,
-    panSpeed: 0.004,
-    panRadius: 0.15,
-    rotationSpeed: 0.01,
-  },
-}: DrawCanvasProps & {
-  frameCount?: number;
-  params?: CircularVisualizationParams;
-}): void {
+  params = DEFAULT_VISUALIZATION_PARAMS,
+}: DrawHaloProps): void {
   const canvasCtx: CanvasRenderingContext2D | null = canvas.getContext('2d');
   if (!canvasCtx) return;
 

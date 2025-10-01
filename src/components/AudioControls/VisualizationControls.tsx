@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import type { CircularVisualizationParams } from '@/types/audio';
 import { updateVisualizationParams } from '@/lib/audio/visualization';
+import { DEFAULT_VISUALIZATION_PARAMS } from '@/lib/audio/constants';
 
 interface VisualizationControlsProps {
   onParamsChange: (params: CircularVisualizationParams) => void;
@@ -13,15 +14,7 @@ interface VisualizationControlsProps {
 
 export function VisualizationControls({
   onParamsChange,
-  initialParams = {
-    stepFactor: 1.01,
-    colorStepFactor: 100,
-    opacity: 0.85,
-    radius: 2,
-    panSpeed: 0.004,
-    panRadius: 0.15,
-    rotationSpeed: 0.01,
-  },
+  initialParams = DEFAULT_VISUALIZATION_PARAMS,
 }: VisualizationControlsProps) {
   const [params, setParams] =
     useState<CircularVisualizationParams>(initialParams);
@@ -45,68 +38,6 @@ export function VisualizationControls({
     updateVisualizationParams(initialParams);
   };
 
-  const presets = {
-    Default: {
-      stepFactor: 1.01,
-      colorStepFactor: 100,
-      opacity: 0.85,
-      radius: 2,
-      panSpeed: 0.004,
-      panRadius: 0.15,
-      rotationSpeed: 0.01,
-    },
-    'Long Trail': {
-      stepFactor: 1.005,
-      colorStepFactor: 50,
-      opacity: 0.9,
-      radius: 1.5,
-      panSpeed: 0.006,
-      panRadius: 0.2,
-      rotationSpeed: 0.008,
-    },
-    'Fast Orbit': {
-      stepFactor: 1.01,
-      colorStepFactor: 200,
-      opacity: 0.7,
-      radius: 3,
-      panSpeed: 0.008,
-      panRadius: 0.25,
-      rotationSpeed: 0.015,
-    },
-    Colorful: {
-      stepFactor: 1.01,
-      colorStepFactor: 30,
-      opacity: 0.8,
-      radius: 2.5,
-      panSpeed: 0.005,
-      panRadius: 0.25,
-      rotationSpeed: 0.012,
-    },
-    Orbiting: {
-      stepFactor: 1.008,
-      colorStepFactor: 80,
-      opacity: 0.85,
-      radius: 2,
-      panSpeed: 0.012,
-      panRadius: 0.3,
-      rotationSpeed: 0.02,
-    },
-    Spinning: {
-      stepFactor: 1.01,
-      colorStepFactor: 60,
-      opacity: 0.85,
-      radius: 2,
-      panSpeed: 0.003,
-      panRadius: 0.1,
-      rotationSpeed: 0.025,
-    },
-  };
-
-  const applyPreset = (preset: CircularVisualizationParams) => {
-    setParams(preset);
-    updateVisualizationParams(preset);
-  };
-
   return (
     <div className="bg-gray-900 p-4 rounded-lg border border-gray-700">
       <div className="flex items-center justify-between mb-3">
@@ -125,26 +56,6 @@ export function VisualizationControls({
 
       {isExpanded && (
         <div className="space-y-4">
-          <Separator className="bg-gray-700" />
-
-          {/* Presets */}
-          <div>
-            <Label className="text-gray-300 mb-2 block">Presets</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {Object.entries(presets).map(([name, preset]) => (
-                <Button
-                  key={name}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => applyPreset(preset)}
-                  className="text-gray-300 border-gray-600 hover:bg-gray-800 text-xs"
-                >
-                  {name}
-                </Button>
-              ))}
-            </div>
-          </div>
-
           <Separator className="bg-gray-700" />
 
           {/* Parameter Controls */}

@@ -44,7 +44,7 @@ export type VisualizeAudioProps = {
   audioBuffer?: ArrayBuffer;
 };
 
-export type DrawCanvasProps = {
+export type DrawHaloProps = {
   analyserRight: AnalyserNode;
   analyserLeft: AnalyserNode;
   canvas: HTMLCanvasElement;
@@ -52,6 +52,8 @@ export type DrawCanvasProps = {
   padding?: number;
   gapBetweenBars?: number;
   wasmModule: EngineModule | null;
+  frameCount?: number;
+  params?: CircularVisualizationParams;
 };
 
 export type CircularVisualizationParams = {
