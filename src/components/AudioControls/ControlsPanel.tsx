@@ -216,14 +216,15 @@ export const ControlsPanel = ({
               </div>
             </div>
 
-            <Separator className="my-4 bg-gray-700" />
             <Button
               variant="secondary"
               onClick={resetToDefaults}
-              className="w-full cursor-pointer"
+              className="w-full cursor-pointer mt-4"
             >
               Reset to Defaults
             </Button>
+
+            <Separator className="my-4 bg-gray-700" />
           </div>
         </div>
       </SheetContent>
