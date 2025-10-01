@@ -64,4 +64,7 @@ export type CircularVisualizationParams = {
   panSpeed: number;
   panRadius: number;
   rotationSpeed: number;
+  // File-specific frequency range for better visualization
+  minFrequency?: number;
+  maxFrequency?: number;
 };

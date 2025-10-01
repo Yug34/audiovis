@@ -190,8 +190,27 @@ export function drawHalo({
   canvasCtx.drawImage(tempCanvas, 0, 0);
   canvasCtx.globalAlpha = 1;
 
+  // Calculate frequency range mapping
+  let frequencyRange = bufferLength;
+  let frequencyOffset = 0;
+
+  if (params.minFrequency !== undefined && params.maxFrequency !== undefined) {
+    // Map the file's frequency range to the available FFT bins
+    const sampleRate = 44100; // Default sample rate
+    const nyquistFreq = sampleRate / 2;
+    const binFreqWidth = nyquistFreq / bufferLength;
+
+    // Calculate which bins correspond to our frequency range
+    const startBin = Math.floor(params.minFrequency / binFreqWidth);
+    const endBin = Math.ceil(params.maxFrequency / binFreqWidth);
+
+    // Ensure we don't exceed buffer bounds
+    frequencyOffset = Math.max(0, startBin);
+    frequencyRange = Math.min(bufferLength, endBin) - frequencyOffset;
+  }
+
   // Calculate slice width for circular distribution
-  const sliceWidth = (2 * Math.PI) / bufferLength;
+  const sliceWidth = (2 * Math.PI) / frequencyRange;
 
   // Calculate panning offset based on frame count for orbiting effect
   const maxPanRadius = Math.min(WIDTH, HEIGHT) * panRadius;
@@ -205,14 +224,18 @@ export function drawHalo({
 
   // Render new frame with circular distribution
   let theta = 0;
-  for (let i = 0; i < bufferLength; i++) {
+  for (let i = 0; i < frequencyRange; i++) {
     theta += sliceWidth;
 
     // Add rotation to the theta angle
     const rotatedTheta = theta + rotationAngle;
 
+    // Get the actual buffer index (with frequency offset)
+    const bufferIndex = i + frequencyOffset;
+
     // Use average of left and right channels for amplitude
-    const amp = (dataArrayLeft[i] + dataArrayRight[i]) / 2 / 256.0;
+    const amp =
+      (dataArrayLeft[bufferIndex] + dataArrayRight[bufferIndex]) / 2 / 256.0;
 
     // Calculate radius based on amplitude
     const r = amp * HEIGHT * 0.2 + HEIGHT * 0.09;

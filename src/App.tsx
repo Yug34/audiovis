@@ -18,12 +18,6 @@ function App() {
     audioCtxRef
   );
 
-  const handleMicrophoneStart = useCallback(() => {
-    if (canvasRef.current) {
-      startAudio('microphone', canvasRef.current);
-    }
-  }, [startAudio]);
-
   const handleFileSelect = useCallback(
     (file: File) => {
       if (canvasRef.current) {
@@ -40,10 +34,7 @@ function App() {
           <AudioCanvas ref={canvasRef} audioInitialized={audioInitialized} />
 
           {!audioInitialized && (
-            <AudioSourceSelector
-              onMicrophoneStart={handleMicrophoneStart}
-              onFileSelect={handleFileSelect}
-            />
+            <AudioSourceSelector onFileSelect={handleFileSelect} />
           )}
 
           {audioInitialized && (

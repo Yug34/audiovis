@@ -71,14 +71,12 @@ export function useAudioVisualization() {
     async (
       type: VisualizationType,
       canvas: HTMLCanvasElement,
-      audioFile?: File
+      audioFile: File
     ) => {
       try {
         let audioBuffer: ArrayBuffer | undefined;
 
-        if (type === 'file' && audioFile) {
-          audioBuffer = await audioFile.arrayBuffer();
-        }
+        audioBuffer = await audioFile.arrayBuffer();
 
         visualizeAudio({
           createNewGain,

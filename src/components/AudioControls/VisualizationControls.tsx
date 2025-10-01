@@ -98,14 +98,14 @@ export function VisualizationControls({
 
             <div>
               <Label htmlFor="opacity" className="text-gray-300">
-                Opacity: {(params.opacity * 100).toFixed(0)}%
+                Opacity: {(params.opacity * 100).toFixed(2)}%
               </Label>
               <Input
                 id="opacity"
                 type="range"
-                min="0.1"
+                min="0.95"
                 max="1"
-                step="0.01"
+                step="0.0005"
                 value={params.opacity}
                 onChange={e =>
                   handleParamChange('opacity', parseFloat(e.target.value))
