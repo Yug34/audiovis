@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gainState, setGainState] = useState<Record<string, GainStateType>>({});
+  const [audioInitialized, setAudioInitialized] = useState(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   const createNewAnalyser = useCallback(
     ({ audioCtx, fftSize = 32 }: CreateNewAnalyserProps): AnalyserNode => {
@@ -54,8 +57,25 @@ function App() {
     })();
   }, []);
 
+  const handleStartAudio = useCallback(async () => {
+    if (!canvasRef.current) return;
+
+    try {
+      const canvas = canvasRef.current;
+      visualizeAudio({
+        createNewGain,
+        canvas,
+        createNewAnalyser,
+        audioCtxRef,
+      });
+      setAudioInitialized(true);
+    } catch (err) {
+      console.error('Failed to initialize audio:', err);
+    }
+  }, [createNewGain, createNewAnalyser]);
+
   useEffect(() => {
-    if (canvasRef.current) {
+    if (canvasRef.current && audioInitialized) {
       const canvas = canvasRef!.current!;
       const resizeCanvasToViewport = (canvas: HTMLCanvasElement): void => {
         canvas.height = window.innerHeight;
@@ -67,23 +87,28 @@ function App() {
       resizeCanvas();
       window.addEventListener('resize', resizeCanvas);
 
-      visualizeAudio({
-        createNewGain,
-        canvas,
-        createNewAnalyser,
-      });
-
       return () => {
         window.removeEventListener('resize', resizeCanvas);
       };
     }
-  }, [createNewAnalyser]);
+  }, [audioInitialized]);
 
   return (
     <div className="flex flex-col w-screen h-screen">
       <main className="flex-1 relative">
         <div className="w-full h-full flex items-center justify-center text-2xl font-bold">
           <canvas className="w-full h-full bg-black" ref={canvasRef} />
+          {!audioInitialized && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+              <Button
+                onClick={handleStartAudio}
+                size="lg"
+                className="text-xl px-8 py-6"
+              >
+                Start Audio Visualization
+              </Button>
+            </div>
+          )}
         </div>
       </main>
     </div>
@@ -106,6 +131,7 @@ type VisualizeAudioProps = {
   createNewAnalyser(props: CreateNewAnalyserProps): AnalyserNode;
   createNewGain(props: CreateNewGainProps): GainStateType;
   canvas: HTMLCanvasElement;
+  audioCtxRef: React.MutableRefObject<AudioContext | null>;
 };
 
 export type VisualizationType = 'oscillator' | 'file' | 'microphone';
@@ -134,8 +160,15 @@ const visualizeAudio = ({
   createNewGain,
   createNewAnalyser,
   canvas,
+  audioCtxRef,
 }: VisualizeAudioProps): void => {
   const audioCtx: AudioContext = new AudioContext();
+  audioCtxRef.current = audioCtx;
+
+  // Resume audio context if it's suspended (required by browsers)
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
 
   const fftSize: number = 32;
   const analyserRight: AnalyserNode = createNewAnalyser({ audioCtx });
