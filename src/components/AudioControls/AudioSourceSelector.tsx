@@ -26,7 +26,7 @@ export function AudioSourceSelector({
             onClick={() => fileInputRef.current?.click()}
             size="lg"
             variant="secondary"
-            className="text-xl px-8 py-6"
+            className="text-xl px-8 py-6 cursor-pointer"
           >
             Upload Audio File
           </Button>

@@ -3,8 +3,7 @@ import { useAudioVisualization, useGainControl } from '@/hooks';
 import {
   AudioCanvas,
   AudioSourceSelector,
-  GainControls,
-  VisualizationControls,
+  ControlsPanel,
 } from '@/components/AudioControls';
 
 function App() {
@@ -38,13 +37,11 @@ function App() {
           )}
 
           {audioInitialized && (
-            <div className="absolute top-4 left-4 right-4 flex gap-4">
-              <GainControls
-                gainState={gainState}
-                onGainChange={handleGainChange}
-              />
-              <VisualizationControls onParamsChange={() => {}} />
-            </div>
+            <ControlsPanel
+              gainState={gainState}
+              onGainChange={handleGainChange}
+              onParamsChange={() => {}}
+            />
           )}
         </div>
       </main>
