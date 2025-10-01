@@ -5,7 +5,10 @@ interface GainControlsProps {
   onGainChange: (channel: 'Left' | 'Right', value: number) => void;
 }
 
-export function GainControls({ gainState, onGainChange }: GainControlsProps) {
+export const GainControls = ({
+  gainState,
+  onGainChange,
+}: GainControlsProps) => {
   return (
     <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-sm p-6 rounded-lg border border-white/20">
       <h3 className="text-white text-lg font-semibold mb-4">Gain Controls</h3>
@@ -51,4 +54,4 @@ export function GainControls({ gainState, onGainChange }: GainControlsProps) {
       </div>
     </div>
   );
-}
+};

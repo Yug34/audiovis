@@ -12,10 +12,10 @@ interface VisualizationControlsProps {
   initialParams?: CircularVisualizationParams;
 }
 
-export function VisualizationControls({
+export const VisualizationControls = ({
   onParamsChange,
   initialParams = DEFAULT_VISUALIZATION_PARAMS,
-}: VisualizationControlsProps) {
+}: VisualizationControlsProps) => {
   const [params, setParams] =
     useState<CircularVisualizationParams>(initialParams);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -200,4 +200,4 @@ export function VisualizationControls({
       )}
     </div>
   );
-}
+};

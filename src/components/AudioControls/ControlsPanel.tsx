@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { GainStateType, CircularVisualizationParams } from '@/types/audio';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
@@ -21,12 +21,12 @@ interface ControlsPanelProps {
   initialParams?: CircularVisualizationParams;
 }
 
-export function ControlsPanel({
+export const ControlsPanel = ({
   gainState,
   onGainChange,
   onParamsChange,
   initialParams = DEFAULT_VISUALIZATION_PARAMS,
-}: ControlsPanelProps) {
+}: ControlsPanelProps) => {
   const [open, setOpen] = useState(false);
   const [params, setParams] =
     useState<CircularVisualizationParams>(initialParams);
@@ -80,16 +80,13 @@ export function ControlsPanel({
                     {gainState.leftGainNode?.gain.toFixed(2) ?? '1.00'}
                   </span>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="2"
-                  step="0.01"
-                  value={gainState.leftGainNode?.gain ?? 1}
-                  onChange={e =>
-                    onGainChange('Left', parseFloat(e.target.value))
-                  }
-                  className="w-full h-2 bg-blue-900/50 rounded-lg appearance-none cursor-pointer slider-blue"
+                <Slider
+                  min={0}
+                  max={2}
+                  step={0.01}
+                  value={[gainState.leftGainNode?.gain ?? 1]}
+                  onValueChange={v => onGainChange('Left', v[0])}
+                  className="mt-1"
                 />
               </div>
               <div className="flex flex-col gap-2">
@@ -101,16 +98,13 @@ export function ControlsPanel({
                     {gainState.rightGainNode?.gain.toFixed(2) ?? '1.00'}
                   </span>
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="2"
-                  step="0.01"
-                  value={gainState.rightGainNode?.gain ?? 1}
-                  onChange={e =>
-                    onGainChange('Right', parseFloat(e.target.value))
-                  }
-                  className="w-full h-2 bg-green-900/50 rounded-lg appearance-none cursor-pointer slider-green"
+                <Slider
+                  min={0}
+                  max={2}
+                  step={0.01}
+                  value={[gainState.rightGainNode?.gain ?? 1]}
+                  onValueChange={v => onGainChange('Right', v[0])}
+                  className="mt-1"
                 />
               </div>
             </div>
@@ -125,16 +119,12 @@ export function ControlsPanel({
                 <Label htmlFor="stepFactor" className="text-gray-300">
                   Step Factor: {params.stepFactor.toFixed(3)}
                 </Label>
-                <Input
-                  id="stepFactor"
-                  type="range"
-                  min="1.001"
-                  max="1.1"
-                  step="0.001"
-                  value={params.stepFactor}
-                  onChange={e =>
-                    handleParamChange('stepFactor', parseFloat(e.target.value))
-                  }
+                <Slider
+                  min={1.001}
+                  max={1.1}
+                  step={0.001}
+                  value={[params.stepFactor]}
+                  onValueChange={v => handleParamChange('stepFactor', v[0])}
                   className="mt-1"
                 />
               </div>
@@ -143,18 +133,13 @@ export function ControlsPanel({
                 <Label htmlFor="colorStepFactor" className="text-gray-300">
                   Color Speed: {params.colorStepFactor}
                 </Label>
-                <Input
-                  id="colorStepFactor"
-                  type="range"
-                  min="10"
-                  max="500"
-                  step="10"
-                  value={params.colorStepFactor}
-                  onChange={e =>
-                    handleParamChange(
-                      'colorStepFactor',
-                      parseInt(e.target.value)
-                    )
+                <Slider
+                  min={10}
+                  max={500}
+                  step={10}
+                  value={[params.colorStepFactor]}
+                  onValueChange={v =>
+                    handleParamChange('colorStepFactor', v[0])
                   }
                   className="mt-1"
                 />
@@ -164,16 +149,12 @@ export function ControlsPanel({
                 <Label htmlFor="opacity" className="text-gray-300">
                   Opacity: {(params.opacity * 100).toFixed(2)}%
                 </Label>
-                <Input
-                  id="opacity"
-                  type="range"
-                  min="0.95"
-                  max="1"
-                  step="0.0005"
-                  value={params.opacity}
-                  onChange={e =>
-                    handleParamChange('opacity', parseFloat(e.target.value))
-                  }
+                <Slider
+                  min={0.95}
+                  max={1}
+                  step={0.0005}
+                  value={[params.opacity]}
+                  onValueChange={v => handleParamChange('opacity', v[0])}
                   className="mt-1"
                 />
               </div>
@@ -182,16 +163,12 @@ export function ControlsPanel({
                 <Label htmlFor="radius" className="text-gray-300">
                   Particle Size: {params.radius.toFixed(1)}
                 </Label>
-                <Input
-                  id="radius"
-                  type="range"
-                  min="0.5"
-                  max="10"
-                  step="0.1"
-                  value={params.radius}
-                  onChange={e =>
-                    handleParamChange('radius', parseFloat(e.target.value))
-                  }
+                <Slider
+                  min={0.5}
+                  max={10}
+                  step={0.1}
+                  value={[params.radius]}
+                  onValueChange={v => handleParamChange('radius', v[0])}
                   className="mt-1"
                 />
               </div>
@@ -200,16 +177,12 @@ export function ControlsPanel({
                 <Label htmlFor="panSpeed" className="text-gray-300">
                   Pan Speed: {params.panSpeed.toFixed(4)}
                 </Label>
-                <Input
-                  id="panSpeed"
-                  type="range"
-                  min="0"
-                  max="0.01"
-                  step="0.0001"
-                  value={params.panSpeed}
-                  onChange={e =>
-                    handleParamChange('panSpeed', parseFloat(e.target.value))
-                  }
+                <Slider
+                  min={0}
+                  max={0.01}
+                  step={0.0001}
+                  value={[params.panSpeed]}
+                  onValueChange={v => handleParamChange('panSpeed', v[0])}
                   className="mt-1"
                 />
               </div>
@@ -218,16 +191,12 @@ export function ControlsPanel({
                 <Label htmlFor="panRadius" className="text-gray-300">
                   Pan Distance: {(params.panRadius * 100).toFixed(0)}%
                 </Label>
-                <Input
-                  id="panRadius"
-                  type="range"
-                  min="0"
-                  max="0.5"
-                  step="0.01"
-                  value={params.panRadius}
-                  onChange={e =>
-                    handleParamChange('panRadius', parseFloat(e.target.value))
-                  }
+                <Slider
+                  min={0}
+                  max={0.5}
+                  step={0.01}
+                  value={[params.panRadius]}
+                  onValueChange={v => handleParamChange('panRadius', v[0])}
                   className="mt-1"
                 />
               </div>
@@ -236,19 +205,12 @@ export function ControlsPanel({
                 <Label htmlFor="rotationSpeed" className="text-gray-300">
                   Spin Speed: {params.rotationSpeed.toFixed(4)}
                 </Label>
-                <Input
-                  id="rotationSpeed"
-                  type="range"
-                  min="0"
-                  max="0.05"
-                  step="0.001"
-                  value={params.rotationSpeed}
-                  onChange={e =>
-                    handleParamChange(
-                      'rotationSpeed',
-                      parseFloat(e.target.value)
-                    )
-                  }
+                <Slider
+                  min={0}
+                  max={0.05}
+                  step={0.001}
+                  value={[params.rotationSpeed]}
+                  onValueChange={v => handleParamChange('rotationSpeed', v[0])}
                   className="mt-1"
                 />
               </div>
@@ -256,9 +218,9 @@ export function ControlsPanel({
 
             <Separator className="my-4 bg-gray-700" />
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={resetToDefaults}
-              className="w-full text-gray-300 border-gray-600 hover:bg-gray-800"
+              className="w-full cursor-pointer"
             >
               Reset to Defaults
             </Button>
@@ -267,4 +229,4 @@ export function ControlsPanel({
       </SheetContent>
     </Sheet>
   );
-}
+};

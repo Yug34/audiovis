@@ -2,8 +2,8 @@ import { useRef, useCallback } from 'react';
 import { useAudioVisualization, useGainControl } from '@/hooks';
 import {
   AudioCanvas,
-  AudioSourceSelector,
   ControlsPanel,
+  AudioUpload,
 } from '@/components/AudioControls';
 
 function App() {
@@ -32,9 +32,7 @@ function App() {
         <div className="w-full h-full flex items-center justify-center text-2xl font-bold">
           <AudioCanvas ref={canvasRef} audioInitialized={audioInitialized} />
 
-          {!audioInitialized && (
-            <AudioSourceSelector onFileSelect={handleFileSelect} />
-          )}
+          {!audioInitialized && <AudioUpload onFileSelect={handleFileSelect} />}
 
           {audioInitialized && (
             <ControlsPanel
