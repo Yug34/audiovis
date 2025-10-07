@@ -47,6 +47,11 @@ export const AudioUpload = ({ onFileSelect }: AudioUploadProps) => {
   const initialize = async (e: ChangeEvent<HTMLInputElement> | null) => {
     const file = e?.target?.files?.[0];
     if (file) {
+      // Validate that the file is actually an audio file
+      if (!file.type.startsWith('audio/')) {
+        alert('Please select an audio file');
+        return;
+      }
       onFileSelect(file);
     }
   };
@@ -59,15 +64,19 @@ export const AudioUpload = ({ onFileSelect }: AudioUploadProps) => {
   };
 
   return (
-    <div className={'absolute flex flex-col h-full justify-center items-start'}>
-      <Card>
-        <CardHeader>
+    <div
+      className={
+        'absolute flex flex-col h-full justify-center items-start max-w-screen p-2'
+      }
+    >
+      <Card className="max-w-full py-2 md:py-6 gap-y-2 md:gap-y-6">
+        <CardHeader className="px-4 md:px-6 text-md mt-2">
           <CardTitle className="mb-3 flex justify-between items-center">
-            <div>Add an audio to visualize</div>
+            <div>Add an .mp3 file to visualize</div>
           </CardTitle>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="px-2 md:px-6">
           <Label htmlFor="dropzone-file" className={'cursor-pointer'}>
             <Card className="flex p-4 items-center justify-center w-full brightness-[0.95] hover:brightness-[0.90] min-w-[300px] md:min-w-[600px]">
               <div className="text-center w-full">
@@ -77,7 +86,7 @@ export const AudioUpload = ({ onFileSelect }: AudioUploadProps) => {
 
                 <p className="my-2 text-sm">
                   <span className="font-semibold">
-                    Click here to upload an audio file
+                    Click here to upload an <code>.mp3</code> file
                   </span>
                 </p>
               </div>
@@ -86,7 +95,7 @@ export const AudioUpload = ({ onFileSelect }: AudioUploadProps) => {
 
           <Input
             id="dropzone-file"
-            accept="audio/*"
+            accept="audio/mp3"
             type="file"
             className="hidden"
             onChange={e => {
@@ -94,7 +103,7 @@ export const AudioUpload = ({ onFileSelect }: AudioUploadProps) => {
             }}
           />
 
-          <div className="relative mt-4">
+          <div className="relative mt-2 md:mt-4">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
@@ -105,14 +114,14 @@ export const AudioUpload = ({ onFileSelect }: AudioUploadProps) => {
             </div>
           </div>
 
-          <div className="flex gap-x-4 max-w-full px-2 pt-4">
+          <div className="flex gap-x-2 md:gap-x-4 max-w-full px-2 pt-2 md:pt-4">
             {AUDIO_SOURCES.map(({ source, alt, image }) => (
               <img
                 src={image}
                 key={alt}
                 onClick={() => loadPreset(alt, source)}
                 className={
-                  'max-w-[200px] rounded-lg cursor-pointer hover:brightness-[1.15]'
+                  'max-w-[100px] md:max-w-[200px] rounded-lg cursor-pointer hover:brightness-[1.15]'
                 }
               />
             ))}
