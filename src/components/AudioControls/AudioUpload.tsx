@@ -1,8 +1,9 @@
 import type { ChangeEvent } from 'react';
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Upload } from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
 
 const lookToWindwardUrl = new URL(
   '../../assets/lookToWindward.mp3',
@@ -44,6 +45,8 @@ export interface AudioUploadProps {
 }
 
 export const AudioUpload = ({ onFileSelect }: AudioUploadProps) => {
+  const [loadingPreset, setLoadingPreset] = useState<string | null>(null);
+
   const initialize = async (e: ChangeEvent<HTMLInputElement> | null) => {
     const file = e?.target?.files?.[0];
     if (file) {
@@ -57,10 +60,17 @@ export const AudioUpload = ({ onFileSelect }: AudioUploadProps) => {
   };
 
   const loadPreset = async (label: string, url: string) => {
-    const response = await fetch(url);
-    const blob = await response.blob();
-    const file = new File([blob], `${label}.mp3`, { type: 'audio/mpeg' });
-    onFileSelect(file);
+    if (loadingPreset) return; // Prevent clicks while loading
+
+    setLoadingPreset(label);
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const file = new File([blob], `${label}.mp3`, { type: 'audio/mpeg' });
+      onFileSelect(file);
+    } finally {
+      setLoadingPreset(null);
+    }
   };
 
   return (
@@ -115,16 +125,39 @@ export const AudioUpload = ({ onFileSelect }: AudioUploadProps) => {
           </div>
 
           <div className="flex gap-x-2 md:gap-x-4 max-w-full px-2 pt-2 md:pt-4">
-            {AUDIO_SOURCES.map(({ source, alt, image }) => (
-              <img
-                src={image}
-                key={alt}
-                onClick={() => loadPreset(alt, source)}
-                className={
-                  'max-w-[100px] md:max-w-[200px] rounded-lg cursor-pointer hover:brightness-[1.15]'
-                }
-              />
-            ))}
+            {AUDIO_SOURCES.map(({ source, alt, image }) => {
+              const isLoading = loadingPreset === alt;
+              const isAnyLoading = loadingPreset !== null;
+
+              return (
+                <div
+                  key={alt}
+                  onClick={() => !isAnyLoading && loadPreset(alt, source)}
+                  className={`relative w-[100px] h-[100px] md:w-[200px] md:h-[200px] rounded-lg overflow-hidden transition-all ${
+                    isAnyLoading
+                      ? isLoading
+                        ? 'cursor-wait brightness-75'
+                        : 'cursor-not-allowed opacity-50'
+                      : 'cursor-pointer hover:brightness-[1.15]'
+                  }`}
+                  style={{
+                    pointerEvents: isAnyLoading && !isLoading ? 'none' : 'auto',
+                  }}
+                  aria-disabled={isAnyLoading && !isLoading}
+                >
+                  <img
+                    src={image}
+                    alt={alt}
+                    className="w-full h-full object-cover"
+                  />
+                  {isLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-white drop-shadow-lg" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
