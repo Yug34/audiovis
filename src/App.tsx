@@ -1,10 +1,9 @@
 import { useRef, useCallback } from 'react';
 import { useAudioVisualization, useGainControl } from '@/hooks';
-import {
-  AudioCanvas,
-  ControlsPanel,
-  AudioUpload,
-} from '@/components/AudioControls';
+
+import { AudioUpload } from '@/components/AudioUpload';
+import { AudioCanvas } from '@/components/AudioCanvas';
+import { ControlsPanel } from '@/components/ControlsPanel';
 
 function App() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
