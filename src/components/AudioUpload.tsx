@@ -6,29 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, Loader2 } from 'lucide-react';
 
 const lookToWindwardUrl = new URL(
-  '../../assets/lookToWindward.mp3',
+  '../assets/lookToWindward.mp3',
   import.meta.url
 ).toString();
-const haloOstUrl = new URL(
-  '../../assets/haloOST.mp3',
-  import.meta.url
-).toString();
+const haloOstUrl = new URL('../assets/haloOST.mp3', import.meta.url).toString();
 const evenInArcadia = new URL(
-  '../../assets/evenInArcadia.png',
+  '../assets/evenInArcadia.png',
   import.meta.url
 ).toString();
 const neverGonnaGiveYouUp = new URL(
-  '../../assets/neverGonnaGiveYouUp.mp3',
+  '../assets/neverGonnaGiveYouUp.mp3',
   import.meta.url
 ).toString();
-const haloImage = new URL(
-  '../../assets/haloLogo.png',
-  import.meta.url
-).toString();
-const question = new URL(
-  '../../assets/question.png',
-  import.meta.url
-).toString();
+const haloImage = new URL('../assets/haloLogo.png', import.meta.url).toString();
+const question = new URL('../assets/question.png', import.meta.url).toString();
 
 const AUDIO_SOURCES = [
   {
